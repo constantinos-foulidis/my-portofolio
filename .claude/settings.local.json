@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init)",
+      "Bash(npm start)",
+      "Bash(npm uninstall:*)",
+      "Bash(taskkill:*)",
+      "Bash(pkill:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(cmd //c taskkill //F //PID 41032)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

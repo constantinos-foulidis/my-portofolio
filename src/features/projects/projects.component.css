@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.project-card {
+  max-width: 400px;
+  min-height: 250px;
+  margin: auto;
+}
+}
