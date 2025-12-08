@@ -38,7 +38,7 @@ export class CvService {
     phone: '6948682906',
     email: 'constantine.foulidis@gmail.com',
     address: 'Thessaloniki, Theagenous charish 86',
-    portfolio: 'http://www.foulidis.innosoft-dev.top/',
+    portfolio: 'https://constantinos-foulidis.github.io/my-portofolio/',
     education: [
       {
         period: '2014-2019',

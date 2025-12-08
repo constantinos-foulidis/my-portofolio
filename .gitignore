@@ -40,3 +40,14 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# ---------------------------------------
+# Claude AI (Anthropic) – common patterns
+# ---------------------------------------
+.claude/
+claude/
+claude.json
+claude_history/
+claude-config.json
+claude-temp/
+*.claude
