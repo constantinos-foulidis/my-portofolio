@@ -118,6 +118,14 @@ export class ProjectsComponent {
     },
     {
       id: 6,
+      title: 'Custom Angular Component Library',
+      subtitle: 'Angular Library',
+      description: 'Designed and maintained a reusable internal Angular component library used across multiple enterprise projects. The library encapsulates shared UI components, directives, pipes, and services — enforcing consistent design patterns, reducing duplication, and accelerating delivery across teams.',
+      icon: 'LIB',
+      technologies: ['Angular', 'TypeScript', 'SASS', 'ng-packagr', 'Storybook'],
+    },
+    {
+      id: 7,
       title: 'Full-Stack Web Platform',
       subtitle: 'MEAN Stack',
       description: 'Complete web platform with Node.js backend, Express REST API, MongoDB database, and Angular frontend.',
