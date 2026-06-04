@@ -8,7 +8,7 @@ export interface CVData {
   phone: string;
   email: string;
   address: string;
-  portfolio: string;
+  linkedin: string;
   education: {
     period: string;
     institution: string;
@@ -38,7 +38,7 @@ export class CvService {
     phone: '6948682906',
     email: 'constantine.foulidis@gmail.com',
     address: 'Thessaloniki, Theagenous charish 86',
-    portfolio: 'https://constantinos-foulidis.github.io/my-portofolio/',
+    linkedin: 'https://www.linkedin.com/in/constantinos-foulidis/',
     education: [
       {
         period: '2014-2019',
@@ -89,46 +89,52 @@ export class CvService {
   }
 
   async generatePDF(cvData: CVData, primaryColor: string = '#4a5568'): Promise<void> {
-    const cvElement = this.createCVElement(cvData, primaryColor);
+    const profileImageBase64 = await this.loadImageAsBase64('assets/profile.jpg');
+    const cvElement = this.createCVElement(cvData, primaryColor, profileImageBase64);
     document.body.appendChild(cvElement);
 
     try {
       const canvas = await html2canvas(cvElement, {
         scale: 2,
         useCORS: true,
+        allowTaint: true,
         logging: false,
         backgroundColor: '#ffffff'
       });
 
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
+      const imgWidth = 210;
+      const pdf = new jsPDF('p', 'mm', 'a4');
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
       pdf.save(`${cvData.name.replace(/\s/g, '_')}_CV.pdf`);
     } finally {
       document.body.removeChild(cvElement);
     }
   }
 
-  private createCVElement(cvData: CVData, primaryColor: string): HTMLElement {
+  private async loadImageAsBase64(url: string): Promise<string> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/jpeg', 0.9));
+      };
+      img.onerror = () => resolve('');
+      img.src = url;
+    });
+  }
+
+  private createCVElement(cvData: CVData, primaryColor: string, profileImageBase64: string = ''): HTMLElement {
     const container = document.createElement('div');
     container.style.cssText = `
       width: 210mm;
-      min-height: 297mm;
+      height: 297mm;
       padding: 0;
       margin: 0;
       background: white;
@@ -136,69 +142,76 @@ export class CvService {
       position: absolute;
       left: -9999px;
       display: flex;
+      overflow: hidden;
     `;
 
+    const profileCircle = profileImageBase64
+      ? `<div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.4);">
+           <img src="${profileImageBase64}" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+         </div>`
+      : `<div style="width: 120px; height: 120px; border-radius: 50%; background-color: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold;">
+           ${cvData.name.split(' ').map((n: string) => n[0]).join('')}
+         </div>`;
+
     container.innerHTML = `
-      <div style="width: 35%; background-color: ${primaryColor}; color: white; padding: 40px 30px; box-sizing: border-box;">
-        <div style="margin-bottom: 40px;">
-          <div style="width: 180px; height: 180px; border-radius: 50%; background-color: rgba(255,255,255,0.1); margin: 0 auto 30px; display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold;">
-            ${cvData.name.split(' ').map(n => n[0]).join('')}
+      <div style="width: 35%; background-color: ${primaryColor}; color: white; padding: 25px 20px; box-sizing: border-box; height: 100%; overflow: hidden;">
+        <div style="margin-bottom: 20px; display: flex; justify-content: center; align-items: center;">
+          ${profileCircle}
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 8px;">Contact</h2>
+          <div style="margin-bottom: 10px;">
+            <strong style="font-size: 12px; display: block; margin-bottom: 3px;">Phone</strong>
+            <p style="margin: 0; font-size: 12px;">${cvData.phone}</p>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <strong style="font-size: 12px; display: block; margin-bottom: 3px;">Email</strong>
+            <p style="margin: 0; font-size: 12px; word-break: break-word;">${cvData.email}</p>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <strong style="font-size: 12px; display: block; margin-bottom: 3px;">Address</strong>
+            <p style="margin: 0; font-size: 12px;">${cvData.address}</p>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <strong style="font-size: 12px; display: block; margin-bottom: 3px;">LinkedIn</strong>
+            <p style="margin: 0; font-size: 12px; word-break: break-word;">${cvData.linkedin}</p>
           </div>
         </div>
 
-        <div style="margin-bottom: 40px;">
-          <h2 style="font-size: 20px; margin-bottom: 20px; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px;">Contact</h2>
-          <div style="margin-bottom: 15px;">
-            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">Phone</strong>
-            <p style="margin: 0; font-size: 13px;">${cvData.phone}</p>
-          </div>
-          <div style="margin-bottom: 15px;">
-            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">Email</strong>
-            <p style="margin: 0; font-size: 13px; word-break: break-word;">${cvData.email}</p>
-          </div>
-          <div style="margin-bottom: 15px;">
-            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">Address</strong>
-            <p style="margin: 0; font-size: 13px;">${cvData.address}</p>
-          </div>
-          <div style="margin-bottom: 15px;">
-            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">Portfolio</strong>
-            <p style="margin: 0; font-size: 13px; word-break: break-word;">${cvData.portfolio}</p>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 40px;">
-          <h2 style="font-size: 20px; margin-bottom: 20px; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px;">Education</h2>
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 8px;">Education</h2>
           ${cvData.education.map(edu => `
-            <div style="margin-bottom: 15px;">
-              <p style="margin: 0 0 5px 0; font-size: 12px; font-weight: 600;">${edu.period}</p>
-              <p style="margin: 0; font-size: 13px; line-height: 1.4;">${edu.institution}</p>
+            <div style="margin-bottom: 10px;">
+              <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600;">${edu.period}</p>
+              <p style="margin: 0; font-size: 12px; line-height: 1.4;">${edu.institution}</p>
             </div>
           `).join('')}
         </div>
 
-        <div style="margin-bottom: 40px;">
-          <h2 style="font-size: 20px; margin-bottom: 20px; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px;">Expertise</h2>
-          <div style="margin-bottom: 20px;">
-            <strong style="font-size: 12px; display: block; margin-bottom: 8px;">Front-end:</strong>
-            <p style="margin: 0; font-size: 12px; line-height: 1.6;">${cvData.skills.frontend.join(', ')}</p>
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 8px;">Expertise</h2>
+          <div style="margin-bottom: 12px;">
+            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">Front-end:</strong>
+            <p style="margin: 0; font-size: 12px; line-height: 1.5;">${cvData.skills.frontend.join(', ')}</p>
           </div>
-          <div style="margin-bottom: 20px;">
-            <strong style="font-size: 12px; display: block; margin-bottom: 8px;">Mobile:</strong>
-            <p style="margin: 0; font-size: 12px; line-height: 1.6;">${cvData.skills.mobile.join(', ')}</p>
+          <div style="margin-bottom: 12px;">
+            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">Mobile:</strong>
+            <p style="margin: 0; font-size: 12px; line-height: 1.5;">${cvData.skills.mobile.join(', ')}</p>
           </div>
-          <div style="margin-bottom: 20px;">
-            <strong style="font-size: 12px; display: block; margin-bottom: 8px;">Other:</strong>
-            <p style="margin: 0; font-size: 12px; line-height: 1.6;">${cvData.skills.other.join(', ')}</p>
+          <div style="margin-bottom: 12px;">
+            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">Other:</strong>
+            <p style="margin: 0; font-size: 12px; line-height: 1.5;">${cvData.skills.other.join(', ')}</p>
           </div>
-          <div style="margin-bottom: 20px;">
-            <strong style="font-size: 12px; display: block; margin-bottom: 8px;">TV:</strong>
-            <p style="margin: 0; font-size: 12px; line-height: 1.6;">${cvData.skills.tv.join(', ')}</p>
+          <div style="margin-bottom: 12px;">
+            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">TV:</strong>
+            <p style="margin: 0; font-size: 12px; line-height: 1.5;">${cvData.skills.tv.join(', ')}</p>
           </div>
         </div>
 
         <div>
-          <h2 style="font-size: 20px; margin-bottom: 20px; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px;">Language</h2>
-          <p style="margin: 0; font-size: 13px;">${cvData.languages.join(', ')}</p>
+          <h2 style="font-size: 18px; margin-bottom: 12px; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 8px;">Language</h2>
+          <p style="margin: 0; font-size: 12px;">${cvData.languages.join(', ')}</p>
         </div>
       </div>
 
