@@ -1,15 +1,40 @@
 :host {
   display: block;
   .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .project-card {
+    max-width: 400px;
+    min-height: 250px;
+    margin: auto;
+  }
 }
 
-.project-card {
-  max-width: 400px;
-  min-height: 250px;
-  margin: auto;
+.carousel-track {
+  display: flex;
+  width: max-content;
+  animation: scroll-logos 28s linear infinite;
 }
+
+.carousel-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-logos {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.logo-card img {
+  transition: filter 0.3s ease, transform 0.3s ease;
+  filter: grayscale(40%);
+}
+
+.logo-card:hover img {
+  filter: grayscale(0%);
+  transform: scale(1.08);
 }

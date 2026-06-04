@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-projects',
   imports: [CommonModule],
+  styleUrl: './projects.component.css',
   template: `
   <section class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-20">
     <div class="container mx-auto px-6">
@@ -49,25 +50,33 @@ import { CommonModule } from '@angular/common';
           }
         </div>
 
-        <!-- Clients Section -->
+        <!-- Clients Carousel -->
         <div class="text-center mb-12">
           <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Clients I've Contributed To</h2>
           <div class="w-20 h-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] mx-auto mb-4"></div>
           <p class="text-lg text-gray-600">European organisations I've delivered solutions for</p>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
-          @for (client of clients; track client.name) {
-            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6 flex flex-col items-center justify-center gap-3">
-              <div class="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                   [style.background-color]="client.color">
-                {{ client.initials }}
+        <div class="overflow-hidden relative py-6">
+          <!-- fade edges -->
+          <div class="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
+
+          <div class="carousel-track">
+            @for (client of carouselClients; track $index) {
+              <div class="logo-card flex flex-col items-center justify-center gap-3 px-10 cursor-default">
+                <img
+                  [src]="client.logo"
+                  [alt]="client.name"
+                  class="h-14 w-auto object-contain"
+                  (error)="onImgError($event, client)"
+                />
+                <span class="text-gray-500 text-sm font-medium whitespace-nowrap">{{ client.name }}</span>
               </div>
-              <span class="text-gray-800 font-semibold text-sm text-center">{{ client.name }}</span>
-              <span class="text-gray-400 text-xs text-center">{{ client.industry }}</span>
-            </div>
-          }
+            }
+          </div>
         </div>
+
       </div>
     </div>
   </section>`,
@@ -110,60 +119,38 @@ export class ProjectsComponent {
     },
     {
       id: 5,
+      title: 'Custom Angular Component Library',
+      subtitle: 'Angular Library',
+      description: 'Designed and maintained a reusable internal Angular component library used across multiple enterprise projects. The library encapsulates shared UI components, directives, pipes, and services — enforcing consistent design patterns, reducing duplication, and accelerating delivery across teams.',
+      icon: 'LIB',
+      technologies: ['Angular', 'TypeScript', 'SASS', 'ng-packagr'],
+    },
+    {
+      id: 6,
       title: 'AR/VR Experience',
       subtitle: 'Unity',
       description: 'Immersive AR and VR applications built with Unity engine for educational and entertainment purposes.',
       icon: 'VR',
       technologies: ['Unity', 'C#', 'ARCore', 'ARKit'],
     },
-    {
-      id: 6,
-      title: 'Custom Angular Component Library',
-      subtitle: 'Angular Library',
-      description: 'Designed and maintained a reusable internal Angular component library used across multiple enterprise projects. The library encapsulates shared UI components, directives, pipes, and services — enforcing consistent design patterns, reducing duplication, and accelerating delivery across teams.',
-      icon: 'LIB',
-      technologies: ['Angular', 'TypeScript', 'SASS', 'ng-packagr', 'Storybook'],
-    },
-    {
-      id: 7,
-      title: 'Full-Stack Web Platform',
-      subtitle: 'MEAN Stack',
-      description: 'Complete web platform with Node.js backend, Express REST API, MongoDB database, and Angular frontend.',
-      icon: 'FS',
-      technologies: ['Node.js', 'Express', 'MongoDB', 'Angular'],
-    }
   ] as { id: number; title: string; subtitle: string; description: string; icon: string; technologies: string[]; link?: string }[];
 
   clients = [
-    {
-      name: 'OPAP',
-      initials: 'OP',
-      industry: 'Gaming & Lottery',
-      color: '#e63946'
-    },
-    {
-      name: 'Ethniki',
-      initials: 'EN',
-      industry: 'Insurance',
-      color: '#1d3557'
-    },
-    {
-      name: 'Cosmote',
-      initials: 'CO',
-      industry: 'Telecommunications',
-      color: '#2dc653'
-    },
-    {
-      name: 'Cyta',
-      initials: 'CY',
-      industry: 'Telecommunications',
-      color: '#f4a261'
-    },
-    {
-      name: 'Vodafone',
-      initials: 'VF',
-      industry: 'Telecommunications',
-      color: '#e63946'
-    }
+    { name: 'OPAP',        logo: 'https://logo.clearbit.com/opap.gr' },
+    { name: 'Ethniki',     logo: 'https://logo.clearbit.com/ethniki-asfalistiki.gr' },
+    { name: 'Cosmote',     logo: 'https://logo.clearbit.com/cosmote.gr' },
+    { name: 'Cosmote TV',  logo: 'https://logo.clearbit.com/cosmote.tv' },
+    { name: 'Cyta',        logo: 'https://logo.clearbit.com/cyta.com.cy' },
+    { name: 'Vodafone',    logo: 'https://logo.clearbit.com/vodafone.gr' },
   ];
+
+  // duplicated for seamless infinite loop
+  carouselClients = [...this.clients, ...this.clients];
+
+  onImgError(event: Event, client: { name: string; logo: string }): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const span = img.nextElementSibling as HTMLElement;
+    if (span) span.style.fontSize = '1.1rem';
+  }
 }
