@@ -29,12 +29,12 @@
   100% { transform: translateX(-50%); }
 }
 
-.logo-card img {
-  transition: filter 0.3s ease, transform 0.3s ease;
-  filter: grayscale(40%);
+.logo-card span {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0.75;
 }
 
-.logo-card:hover img {
-  filter: grayscale(0%);
+.logo-card:hover span {
+  opacity: 1;
   transform: scale(1.08);
 }

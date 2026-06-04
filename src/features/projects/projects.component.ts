@@ -64,14 +64,9 @@ import { CommonModule } from '@angular/common';
 
           <div class="carousel-track">
             @for (client of carouselClients; track $index) {
-              <div class="logo-card flex flex-col items-center justify-center gap-3 px-10 cursor-default">
-                <img
-                  [src]="client.logo"
-                  [alt]="client.name"
-                  class="h-14 w-auto object-contain"
-                  (error)="onImgError($event, client)"
-                />
-                <span class="text-gray-500 text-sm font-medium whitespace-nowrap">{{ client.name }}</span>
+              <div class="logo-card flex items-center justify-center px-10">
+                <span class="text-2xl font-bold whitespace-nowrap"
+                      [style.color]="client.color">{{ client.name }}</span>
               </div>
             }
           </div>
@@ -136,21 +131,13 @@ export class ProjectsComponent {
   ] as { id: number; title: string; subtitle: string; description: string; icon: string; technologies: string[]; link?: string }[];
 
   clients = [
-    { name: 'OPAP',        logo: 'https://logo.clearbit.com/opap.gr' },
-    { name: 'Ethniki',     logo: 'https://logo.clearbit.com/ethniki-asfalistiki.gr' },
-    { name: 'Cosmote',     logo: 'https://logo.clearbit.com/cosmote.gr' },
-    { name: 'Cosmote TV',  logo: 'https://logo.clearbit.com/cosmote.tv' },
-    { name: 'Cyta',        logo: 'https://logo.clearbit.com/cyta.com.cy' },
-    { name: 'Vodafone',    logo: 'https://logo.clearbit.com/vodafone.gr' },
+    { name: 'OPAP',       color: '#e63946' },
+    { name: 'Ethniki',    color: '#1d3557' },
+    { name: 'Cosmote',    color: '#2dc653' },
+    { name: 'Cosmote TV', color: '#0077b6' },
+    { name: 'Cyta',       color: '#f4a261' },
+    { name: 'Vodafone',   color: '#e63946' },
   ];
 
-  // duplicated for seamless infinite loop
   carouselClients = [...this.clients, ...this.clients];
-
-  onImgError(event: Event, client: { name: string; logo: string }): void {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
-    const span = img.nextElementSibling as HTMLElement;
-    if (span) span.style.fontSize = '1.1rem';
-  }
 }
